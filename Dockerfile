@@ -22,7 +22,7 @@ RUN pg_basebackup -V
 COPY . /home/root/
 RUN mv /home/root/.pgpass /root/.pgpass
 
-RUN chmod +x /home/root/backup-now.sh
+RUN chmod +x /home/root/backup.sh
 RUN chmod 600 /root/.pgpass
 
 #Copying script file
