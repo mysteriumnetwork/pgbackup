@@ -29,5 +29,7 @@ docker build . -t pgbackup
 * `PG_USER` - Database user name to make a backup with
 * `PG_PASS` - Database user password to make a backup with
 * `AWS_S3_BUCKET` - Aws S3 or compatible S3 storage bucket
+* `AWS_KEY_ID` - Aws S3 or compatible S3 Access Key Id
+* `AWS_KEY` - Aws S3 or compatible S3 Access Key
 * `HEARTBEAT_URL` - Heartbeat Url to call upon successful completion of the backup
 * `AWS_ENDPOINT_FILE` - (optional) S3 compatible configuration endpoint file (example [here](https://www.scaleway.com/en/docs/storage/object/api-cli/object-storage-aws-cli/))
