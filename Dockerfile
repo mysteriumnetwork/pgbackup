@@ -1,4 +1,6 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
+
+ARG PG_VER=13
 
 # Run the Update
 RUN apt-get update && apt-get upgrade -y
@@ -15,7 +17,7 @@ RUN aws configure set plugins.endpoint awscli_plugin_endpoint
 RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 RUN apt-get update
-RUN apt-get install postgresql-client-13 -y
+RUN apt-get install postgresql-client-${PG_VER} -y
 RUN pg_basebackup -V
 
 #Make sure that your shell script file is in the same folder as your dockerfile while running the docker build command as the below command will copy the file to the /home/root/ folder for execution.
