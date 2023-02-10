@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pg-version: [13, 14]
+        pg_version: [13, 14]
     steps:
       -
         name: Checkout
@@ -34,6 +34,6 @@ jobs:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64
-          build-args: PG_VER={{ matrix.pg_version }}
-          tags: mysteriumnetwork/pgbackup:${{ matrix.pg_version }}
+          build-args: PG_VER=${{ matrix.pg_version }}
+          tags: ${GITHUB_REPOSITORY}:${{ matrix.pg_version }}
           push: true
