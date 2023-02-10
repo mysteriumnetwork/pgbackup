@@ -35,5 +35,5 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           build-args: PG_VER={{ matrix.pg_version }}
-          tags: ${{ github.repository_owner }}/${{ github.repository_owner }}:${{ matrix.pg_version }}
+          tags: ${GITHUB_REPOSITORY}:${{ matrix.pg_version }}
           push: true
