@@ -1,9 +1,9 @@
 #!/bin/bash
 
-cd /home/root
+cd /home/root || exit
 
 NOW_DATE=$(date +%d%m%Y-%H%M)
-FILENAME="postgres-db-"$NOW_DATE".dump"
+FILENAME="postgres-db-$NOW_DATE.dump"
 PG_PASS_FILE=/root/.pgpass
 
 if [ -z "$PG_HOST" ]; then
@@ -53,7 +53,7 @@ if [ -n "$AWS_ENDPOINT_FILE" ]; then
       exit
   fi
 
-  cp $AWS_ENDPOINT_FILE /root/.aws/config
+  cp "$AWS_ENDPOINT_FILE" /root/.aws/config
 fi
 
 echo "[default]
@@ -61,17 +61,17 @@ aws_access_key_id=$AWS_KEY_ID
 aws_secret_access_key=$AWS_KEY
 region=nl-ams" > /root/.aws/credentials
 
-echo -n $PG_PASS >> /root/.pgpass
+echo -n "$PG_PASS" >> /root/.pgpass
 
 # /root/.pgpass need be created in the format hostname:port:database:username:password
 # where we put '*' for all criteria and set only password
 # example: *:*:*:*:<password>
 # that is preferable way to pass credentials for pg_dump
-pg_dump -Fc -h $PG_HOST -p $PG_PORT -d $PG_DB -U $PG_USER > $FILENAME
+pg_dump -Fc -h "$PG_HOST" -p "$PG_PORT" -d "$PG_DB" -U "$PG_USER" > "$FILENAME"
 dump_status=$?
 
 if [ $dump_status -eq 0 ]; then
-  filesize=$(stat -c %s $FILENAME)
+  filesize=$(stat -c %s "$FILENAME")
   mfs=10
   if [ "$filesize" -gt "$mfs" ]; then
     echo "Postgres Database backup succeeded!"
@@ -85,8 +85,8 @@ else
 fi
 
 # Uploading to s3
-S3_BUCKET=$AWS_S3_BUCKET/$PG_DB/$FILENAME
-aws s3 cp $FILENAME $S3_BUCKET
+S3_BUCKET="$AWS_S3_BUCKET/$PG_DB/$FILENAME"
+aws s3 cp "$FILENAME" "$S3_BUCKET"
 aws_status=$?
 
 if [ $aws_status -eq 0 ]; then
@@ -97,5 +97,5 @@ else
 fi
 
 if [ -n "$HEARTBEAT_URL" ]; then
-  curl $HEARTBEAT_URL
+  curl "$HEARTBEAT_URL"
 fi
