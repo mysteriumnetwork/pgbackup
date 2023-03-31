@@ -97,5 +97,19 @@ else
 fi
 
 if [ -n "$HEARTBEAT_URL" ]; then
-  curl "$HEARTBEAT_URL"
+# shellcheck disable=SC2034
+SUCCESS_HTTP_CODE=200
+# shellcheck disable=SC2034
+MAX_RETRIES=5
+CURRENT=0
+while [[ -z "$HTTP_CODE" || $CURRENT -lt $MAX_RETRIES ]]; do
+HTTP_CODE=$(curl --silent --write-out "%{http_code}" --output /dev/null "$HEARTBEAT_URL")
+  if [ "$HTTP_CODE" -eq "$SUCCESS_HTTP_CODE" ]; then exit 0; fi
+  sleep $((2**"$CURRENT"))
+  ((CURRENT=CURRENT+1))
+done
+fi
+if [ "$HTTP_CODE" -ne "$SUCCESS_HTTP_CODE" ]; then
+  echo "Couldn't send heartbeat after $CURRENT retries"
+  exit 1
 fi
