@@ -102,7 +102,7 @@ if [ -n "$HEARTBEAT_URL" ]; then
   # shellcheck disable=SC2034
   MAX_RETRIES=5
   CURRENT=0
-  while [[ -z "$HTTP_CODE" || $CURRENT -lt $MAX_RETRIES ]]; do
+  while [[ -z "$HTTP_CODE" || "$CURRENT" -lt "$MAX_RETRIES" ]]; do
     HTTP_CODE=$(curl --silent --write-out "%{http_code}" --output /dev/null "$HEARTBEAT_URL")
     if [ "$HTTP_CODE" -eq "$SUCCESS_HTTP_CODE" ]; then exit 0; fi
     sleep $((2 ** "$CURRENT"))

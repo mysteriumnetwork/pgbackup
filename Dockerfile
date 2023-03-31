@@ -30,4 +30,4 @@ RUN chmod 600 /root/.pgpass
 #Copying script file
 USER root 
 #switching the user to give elevated access to the commands being executed from the k8s cron job
-CMD sh /home/root/backup.sh
+CMD bash /home/root/backup.sh
