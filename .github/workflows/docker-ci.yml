@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pg_version: [13, 14]
+        pg_version: [13, 14, 15]
     steps:
       -
         name: Checkout
