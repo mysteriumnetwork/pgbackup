@@ -42,9 +42,8 @@ RUN install -d /usr/share/postgresql-common/pgdg \
 RUN pipx install awscli-plugin-endpoint --include-deps
 RUN aws configure set plugins.endpoint awscli_plugin_endpoint
 
-COPY . /home/root/
-RUN chmod +x /home/root/backup.sh
-RUN chmod 600 /root/.pgpass
+COPY backup.sh /root/
+RUN chmod +x /root/backup.sh
 
 USER root
-CMD bash /home/root/backup.sh
+CMD bash /root/backup.sh
