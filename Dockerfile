@@ -1,33 +1,52 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
-ARG PG_VER=13
+ARG PG_VER=18
 
-# Run the Update
-RUN apt-get update && apt-get upgrade -y
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install pre-reqs
-RUN apt-get install -y python3-pip curl ca-certificates wget gnupg lsb-release unzip vim
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    git \
+    curl \
+    gnupg \
+    lsb-release \
+    python3 \
+    python3-pip \
+    pipx \
+    unzip \
+    vim \
+    wget \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install awscli
+RUN ARCH="$(uname -m)" \
+ && case "${ARCH}" in \
+      x86_64) AWS_ARCH="x86_64" ;; \
+      aarch64|arm64) AWS_ARCH="aarch64" ;; \
+      *) echo "Unsupported architecture: ${ARCH}" >&2; exit 1 ;; \
+    esac \
+ && curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" -o awscliv2.zip \
+ && unzip awscliv2.zip \
+ && ./aws/install \
+ && rm -rf aws awscliv2.zip
 
-RUN pip3 install awscli-plugin-endpoint
+RUN install -d /usr/share/postgresql-common/pgdg \
+ && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    | gpg --dearmor >/usr/share/postgresql-common/pgdg/apt.postgresql.org.gpg \
+ && sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends "postgresql-client-${PG_VER}" \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pipx install awscli-plugin-endpoint --include-deps
 RUN aws configure set plugins.endpoint awscli_plugin_endpoint
 
-# PostgreSql Client
-RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get update
-RUN apt-get install postgresql-client-${PG_VER} -y
-RUN pg_basebackup -V
-
-#Make sure that your shell script file is in the same folder as your dockerfile while running the docker build command as the below command will copy the file to the /home/root/ folder for execution.
 COPY . /home/root/
 RUN mv /home/root/.pgpass /root/.pgpass
 
 RUN chmod +x /home/root/backup.sh
 RUN chmod 600 /root/.pgpass
 
-#Copying script file
-USER root 
-#switching the user to give elevated access to the commands being executed from the k8s cron job
+USER root
 CMD bash /home/root/backup.sh

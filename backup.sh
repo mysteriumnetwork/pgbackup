@@ -42,11 +42,6 @@ if [ -z "$AWS_S3_BUCKET" ]; then
   exit
 fi
 
-if [ ! -e "$PG_PASS_FILE" ]; then
-  echo "/root/.pgpass file doesn't exist conforming format *:*:*:*:<password>. Exiting"
-  exit
-fi
-
 if [ -n "$AWS_ENDPOINT_FILE" ]; then
   if [ ! -e "$AWS_ENDPOINT_FILE" ]; then
     echo "$AWS_ENDPOINT_FILE file doesn't exist. More info here https://www.scaleway.com/en/docs/storage/object/api-cli/object-storage-aws-cli/. Exiting"
@@ -61,7 +56,8 @@ aws_access_key_id=$AWS_KEY_ID
 aws_secret_access_key=$AWS_KEY
 region=nl-ams" >/root/.aws/credentials
 
-echo -n "$PG_PASS" >>/root/.pgpass
+printf '*:*:*:*:%s\n' "$PG_PASS" >"$PG_PASS_FILE"
+chmod 600 "$PG_PASS_FILE"
 
 # /root/.pgpass need be created in the format hostname:port:database:username:password
 # where we put '*' for all criteria and set only password
