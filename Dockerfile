@@ -43,8 +43,6 @@ RUN pipx install awscli-plugin-endpoint --include-deps
 RUN aws configure set plugins.endpoint awscli_plugin_endpoint
 
 COPY . /home/root/
-RUN mv /home/root/.pgpass /root/.pgpass
-
 RUN chmod +x /home/root/backup.sh
 RUN chmod 600 /root/.pgpass
 
